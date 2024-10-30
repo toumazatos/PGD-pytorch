@@ -32,7 +32,7 @@ def image_folder_custom_label(root, transform, custom_label):
 
 # Load data
 normal_data = image_folder_custom_label(root='./data/imagenet', transform=transform, custom_label=idx2label)
-normal_loader = Data.DataLoader(normal_data, batch_size=1, shuffle=False)
+normal_loader = Data.DataLoader(normal_data, batch_size=5, shuffle=False)
 
 # Define a function to display images
 def imshow(img, title):
