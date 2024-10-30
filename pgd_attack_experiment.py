@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 
-# Set device
-use_cuda = True
-device = torch.device("cuda" if use_cuda else "cpu")
+# Set device to CPU
+use_cuda = False
+device = torch.device("cpu")
 
 # Prepare ImageNet Data
 class_idx = json.load(open("./data/imagenet_class_index.json"))
@@ -43,7 +43,7 @@ def imshow(img, title):
     plt.show()
 
 # Load pre-trained Inception v3 model
-model = models.inception_v3(pretrained=True).to(device)
+model = models.inception_v3(weights="IMAGENET1K_V1").to(device)
 model.eval()
 
 # PGD Attack Function
@@ -83,6 +83,5 @@ for i, (images, labels) in enumerate(normal_loader):
 
     # Show adversarial image
     imshow(torchvision.utils.make_grid(images.cpu().data, normalize=True), [normal_data.classes[i] for i in pre])
-
 
 print('Accuracy of adversarial test images: %f %%' % (100 * float(correct) / total))
