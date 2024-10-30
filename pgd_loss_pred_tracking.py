@@ -77,28 +77,38 @@ def pgd_attack(model, images, labels, eps=0.3, alpha=2/255, iters=40):
         eta = torch.clamp(adv_images - ori_images, min=-eps, max=eps)
         images = torch.clamp(ori_images + eta, min=0, max=1).detach_()
 
-    # Print results for each image
-    print(f"Step losses: {step_losses}")
-    print(f"Step predictions: {step_predictions}")
-
-    return images
+    # Return adversarial images, losses, and predictions for each step
+    return images, step_losses, step_predictions
 
 # Evaluate on adversarial examples
 correct = 0
 total = 0
 image_cap = 50  # Set your desired cap here
+all_step_losses = []
+all_step_predictions = []
 
 for i, (images, labels) in enumerate(normal_loader):
     if i >= image_cap:
         break
 
-    images = pgd_attack(model, images, labels)
-    outputs = model(images)
+    # Perform PGD attack and record losses and predictions at each step
+    adv_images, step_losses, step_predictions = pgd_attack(model, images, labels)
+    all_step_losses.append(step_losses)
+    all_step_predictions.append(step_predictions)
+
+    outputs = model(adv_images)
     _, pre = torch.max(outputs.data, 1)
     total += 1
     correct += (pre == labels).sum()
 
     # Show adversarial image
-    imshow(torchvision.utils.make_grid(images.cpu().data, normalize=True), [normal_data.classes[i] for i in pre])
+    imshow(torchvision.utils.make_grid(adv_images.cpu().data, normalize=True), [normal_data.classes[i] for i in pre])
+
+    # Print per-image losses and predictions
+    print(f"Image {i + 1}: Step losses = {step_losses}")
+    print(f"Image {i + 1}: Step predictions = {step_predictions}")
 
 print('Accuracy of adversarial test images: %f %%' % (100 * float(correct) / total))
+
+# You now have all_step_losses and all_step_predictions, each containing 50 arrays
+# of 40 elements (if iters=40 and image_cap=50) for further analysis or plotting.
