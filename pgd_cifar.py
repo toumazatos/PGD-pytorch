@@ -93,7 +93,8 @@ for i, (images, labels) in enumerate(normal_loader):
     correct += (pre == labels).sum()
 
     # Show adversarial image
-    imshow(torchvision.utils.make_grid(adv_images.cpu().data, normalize=True), [normal_data.classes[i] for i in pre])
+    print(f"Predicted indices for image {i + 1}: {pre.cpu().numpy()}")
+    imshow(torchvision.utils.make_grid(adv_images.cpu().data, normalize=True), title="Adversarial Image")
 
     # Print per-image losses and predictions
     print(f"Image {i + 1}: Step losses = {step_losses}")
